@@ -1,10 +1,46 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { Restaurants } from './api/Restaurants';
+import Kartu from './components/Kartu';
 
 export default function App() {
+
+  const [restaurants, setRestaurants] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [users, setUsers] = useState(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+    Restaurants()
+      .then(result => {
+        setRestaurants(result.data.restaurants)
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }, [])
+
+  const renderItem = ({ item }) => {
+    return <Kartu
+      name={item.name}
+    ></Kartu>
+  };
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+      {
+        isLoading
+          ?
+          <Text>Loading..</Text>
+          :
+          <FlatList
+            data={restaurants}
+            renderItem={renderItem}
+            keyExtractor={item => item.id}
+          />
+      }
       <StatusBar style="auto" />
     </View>
   );
